@@ -1,4 +1,4 @@
-# demo02
+# json2html-generator
 
 ## Project setup
 ```
