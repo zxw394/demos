@@ -22,7 +22,12 @@ export default {
     let tableObj = {
       //tag
       '<>': 'div',
-      'html': [{
+      'html': [
+        {
+          '<>': 'span',
+          'html': ['ookkkooo']
+        },
+        {
         '<>': 'table',
         'html': [
           {
@@ -49,7 +54,8 @@ export default {
             ]
           }
         ]
-      }]
+      }
+      ]
     }
     this.value = JSON.stringify(tableObj, undefined, 4);
     let tableEle = [{

@@ -1,17 +1,15 @@
-<template>
-  <div class="about">
-    <h1>This is an about page</h1>
-  </div>
-</template>
 <script>
-import _ from 'lodash'
-export default {
-  created () {
-    function add (a, b) {
-      return a + b
-    }
-    let newFunc = _.curry(add)
-    console.log(newFunc(1)(2))
-  }
-}
+  const program = require('commander');
+
+  program
+    .option('-d, --debug', 'output extra debugging')
+    .option('-s, --small', 'small pizza size')
+    .option('-p, --pizza-type <type>', 'flavour of pizza');
+
+  program.parse(process.argv);
+
+  if (program.debug) console.log(program.opts());
+  console.log('pizza details:');
+  if (program.small) console.log('- small pizza size');
+  if (program.pizzaType) console.log(`- ${program.pizzaType}`);
 </script>

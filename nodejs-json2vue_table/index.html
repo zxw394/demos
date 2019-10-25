@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<textarea cols="100" rows="30" id="text"></textarea>
+<button id="startGenerator">开始生成</button>
+<script>
+    document.getElementById("startGenerator").addEventListener("click", function () {
+        fetch("/generate", {
+            method : 'post',
+            headers : {
+                'Content-Type' : "application/json"
+            },
+            body : JSON.stringify(document.getElementById("text").value)
+        }).then((resp) => resp.text())
+        .then((resp) => console.log(resp))
+    })
+</script>
+</body>
+</html>
