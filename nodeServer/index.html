@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .form-input{
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="form-input">
+<label>配置:</label>
+<textarea cols="100" rows="30" id="config"></textarea>
+</div>
+<div class="form-input">
+<label>路径:</label>
+<input id="pathInput"/>
+</div>
+<button id="startGenerator">开始生成</button>
+<script>
+    document.getElementById("startGenerator").addEventListener("click", function () {
+        this.setAttribute("disabled", true);
+        fetch("/generate", {
+            method : 'post',
+            headers : {
+                'Content-Type' : "application/json"
+            },
+            body : JSON.stringify({
+                config : document.getElementById("config").value,
+                path : document.getElementById("pathInput").value,
+            })
+        })
+        .then((resp) => {
+            if (resp.ok) {
+                return resp.text()
+            } else {
+                return resp.text().then((text) => {
+                    throw Error(text);
+                })
+            }
+        })
+        .then((resp) => console.log(resp))
+        .catch((error) => {
+            alert(error);
+        }).finally(function () {
+            this.removeAttribute("disabled");
+        })
+
+    })
+</script>
+</body>
+</html>

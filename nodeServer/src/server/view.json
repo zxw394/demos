@@ -1,0 +1,37 @@
+{
+  "Name":"Sport",
+  "Gridfield":[
+    {
+      "EntityFieldList":[
+        {
+          "ClassName":"Sport",
+          "ClassOid":0,
+          "ColumnKey":"SportName",
+          "ColumnName":"Sport.SportName",
+          "EntityOid":0,
+          "LinkObj":null,
+          "ViewName":null,
+          "ViewOid":0
+        }
+      ],
+      "Name":"运动名称"
+    },
+    {
+      "EntityFieldList":[
+        {
+          "ClassName":"Sport",
+          "ClassOid":0,
+          "ColumnKey":"aSportType",
+          "ColumnName":"Sport.SportType.Sport.SportName",
+          "EntityOid":0,
+          "LinkObj":null,
+          "ViewName":null,
+          "ViewOid":0
+        }
+      ],
+      "Name":"运动类型"
+    }
+  ],
+  "Type":"https://www.fastmock.site/mock/7f143c4ab35b8dbc46edbcc32c83547a/ty/api/vue_test",
+  "InterfaceName":"ITySportHelper.GetAllSports"
+}

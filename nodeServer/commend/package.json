@@ -1,0 +1,10 @@
+{
+  "name": "ty-cli",
+  "version": "1.0.0",
+  "bin": {
+    "ty-cli": "index.js"
+  },
+  "dependencies": {
+    "commander": "^3.0.2"
+  }
+}

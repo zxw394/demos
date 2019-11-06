@@ -1,0 +1,10 @@
+将平台table的配置json转化成vue文件并且自动构建vue项目ui框架使用elementUI
+1,启动项目-->node app.js
+2,浏览器地址栏输入localhost:3000/index.html,在页面的输入框填入需要转换的格式，然后点击生成
+    ex:{"Name":"Sport","Gridfield":[{"EntityFieldList":[{"ClassName":"Sport","ClassOid":0,"ColumnKey":"SportName","ColumnName":"Sport.SportName","EntityOid":0,"LinkObj":null,"ViewName":null,"ViewOid":0}],"Name":"运动名称"},{"EntityFieldList":[{"ClassName":"Sport","ClassOid":0,"ColumnKey":"aSportType","ColumnName":"Sport.SportType.Sport.SportName","EntityOid":0,"LinkObj":null,"ViewName":null,"ViewOid":0}],"Name":"运动类型"}],"Type":"https://www.fastmock.site/mock/7f143c4ab35b8dbc46edbcc32c83547a/ty/api/vue_test","InterfaceName":"ITySportHelper.GetAllSports"}
+3,查看nodejs控制台,生成完成后进入生成的新项目,在用户目录下
+4,进入新项目目录,然后npm i element-ui -S安装elementui
+5,安装完成后npm run serve启动该项目
+6,localhost:8080直接查看
+
+
