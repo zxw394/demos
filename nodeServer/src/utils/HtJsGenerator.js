@@ -1,9 +1,9 @@
-let {tempStr, fetchGetStr, dataStr} = require('../template_str/vueTemp');
-let fs = require("fs");
+const {vueInstFetchStr, vueInstDataTemp} = require('../template_str/vueTemp');
+const fs = require("fs");
 
 function generateJs (pJson) {
     //这个数组后面会有很多个！
-    const _tagTypes_ = ['Gridfield', 'Tyfields'];
+    const _tagTypes_ = ['Gridfield', 'Tyfields', 'UIViewList'];
     let pKeys = Object.keys(pJson);
     //取pKeys与tagTypes都有的key（一般只有一个）
     let commonKeys = [...pKeys].filter((item) => _tagTypes_.some((el) => el == item));
@@ -19,8 +19,8 @@ function generateJs (pJson) {
         let createdContent = '';
         let methodsContent = '';
         if (pJson[_urlKey_]) {
-            dataContent += dataStr("items", []);
-            createdContent += fetchGetStr(pJson[_urlKey_], "items");
+            dataContent += vueInstDataTemp("items", []);
+            createdContent += vueInstFetchStr(pJson[_urlKey_], "items");
         }
         return {
             dataContent,
@@ -47,11 +47,11 @@ function generateJs (pJson) {
             }, {})
             //处理Name中的属性，将类似'Org.Sport.Cyc'转化成'{Org : { Sport : { Cyc : {}}}}'
             let bindNameValue = JSON.stringify(bindNameResult).substring(1, JSON.stringify(bindNameResult).length - 1);
-            dataContent += dataStr(bindNameValue);
+            dataContent += vueInstDataTemp(bindNameValue);
 
             if (item[_viewName_]) {//如果有viewName属性 则是selectfield类型
                 //selectfield需要额外定义个dialog显示属性
-                dataContent += dataStr(transformDialogVisible(bindName), false)
+                dataContent += vueInstDataTemp(transformDialogVisible(bindName), false)
 
                 let data = fs.readFileSync(item[_viewName_], { 'encoding' : 'utf8' });
                 let contentObj = generateJs(JSON.parse(data))
@@ -64,14 +64,36 @@ function generateJs (pJson) {
             createdContent,
             methodsContent
         }
+    } else if (commonKeys[0] == 'UIViewList') {
+
     } else {
         return "";
     }
 }
 
+/*
+ * handler中间层--将配置json转成generator识别的json
+ */
+//解析带entityFieldList属性的对象
+function entityFieldListHandler (configJson) {
+    //table
+    const _labelName_ = 'Name';
+    const _entityFieldKey_ = "ColumnKey"
+    const _cloumnEntityList_ = 'EntityFieldList';
+
+    let cloumns = configJson.map((item) => {
+        return {
+            headerLabelName : item[_labelName_],
+            bindName : item[_cloumnEntityList_][0][_entityFieldKey_],
+            listField : "items"
+        }
+    });
+    return cloumns;
+}
+
 function generateHtml (pJson) {
     //这个数组后面会有很多个！
-    const _tagTypes_ = ['Gridfield', 'Tyfields'];
+    const _tagTypes_ = ['Gridfield', 'Tyfields', 'UIViewList'];
     let pKeys = Object.keys(pJson);
     //取pKeys与tagTypes都有的key（一般只有一个）
     let commonKeys = [...pKeys].filter((item) => _tagTypes_.some((el) => el == item));
@@ -79,20 +101,9 @@ function generateHtml (pJson) {
     if (!commonKeys.length) throw 'no view tag';
     //html
     if (commonKeys[0] == 'Gridfield') {//表格
-        //table
-        const _labelName_ = 'Name';
-        const _entityFieldKey_ = "ColumnKey"
-        const _cloumnEntityList_ = 'EntityFieldList';
-
-        let tag = commonKeys[0];
-        let cloumns = pJson[tag].map((item) => {
-            return {
-                headerLabelName : item[_labelName_],
-                bindName : item[_cloumnEntityList_][0][_entityFieldKey_],
-                listField : "items"
-            }
-        });
+        let cloumns = entityFieldListHandler(pJson['Gridfield']);
         return tableGenerator(cloumns);
+
     } else if (commonKeys[0] == 'Tyfields') {//表单
         //form
         const _type_ = 'ColumnType';
@@ -114,8 +125,37 @@ function generateHtml (pJson) {
             }
         })
         return formGenerator(cloumns);
+    } else if (commonKeys[0] == 'UIViewList') {
+        return viewNestGenerator(pJson);
     } else {
         return null;
+    }
+}
+
+//视图嵌套模板
+function viewNestGenerator (pJson) {
+    const _mainView_ = 'MainView';
+    const _uiViewList_ = 'UIViewList';
+    const _treefield_ = 'Treefield';
+
+    let mainViewData = JSON.parse(fs.readFileSync(pJson[_mainView_], 'utf8'));
+    //如果是树结构
+    if (mainViewData.hasOwnProperty(_treefield_)) {
+        let cloumns = entityFieldListHandler(mainViewData[_treefield_]);
+        return treeGenerator(cloumns);
+    } else {
+        return null
+    }
+}
+
+//tree模板
+function treeGenerator (prop) {
+    return {
+        '<>' : 'el-tree ',
+        'html' : [''],
+        'icon-class' : 'el-icon-folder',
+        ':data' : prop.bindName,
+        ':expand-on-click-node' : 'false'
     }
 }
 

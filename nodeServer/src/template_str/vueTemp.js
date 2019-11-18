@@ -1,7 +1,8 @@
 const { isArray, isObject, isBoolean } = require('../utils/json2html');
 
-const tempStr = function (options) {
-    return `export default {
+const vueInstTemp = function (options) {
+    return `
+    export default {
         data () {
             return {
             ${options.dataContent ? options.dataContent : ''}
@@ -16,7 +17,7 @@ const tempStr = function (options) {
     }`
 }
 
-const fetchGetStr = function (url, dName) {
+const vueInstFetchStr = function (url, dName) {
     return `
     fetch ("${url}")
     .then((resp) => resp.json())
@@ -24,7 +25,8 @@ const fetchGetStr = function (url, dName) {
         this.${dName} = resp.${dName};
     })`
 }
-const dataStr = function (dName, dataType) {
+
+const vueInstDataTemp = function (dName, dataType) {
     if (dataType === undefined) {
         return `${dName},`;
     }
@@ -39,15 +41,15 @@ const dataStr = function (dName, dataType) {
     return `${dName} : ${data},`
 }
 
-const methodStr = function (mName) {
+const vueInstMethodTemp = function (mName) {
     return `${mName} : function () {
             
         },
         `
 }
 module.exports = {
-    tempStr,
-    fetchGetStr,
-    dataStr,
-    methodStr,
+    vueInstTemp,
+    vueInstFetchStr,
+    vueInstDataTemp,
+    vueInstMethodTemp,
 }

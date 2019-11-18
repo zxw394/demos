@@ -3,15 +3,18 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path")
 
-const { defaultProjectName } = require('../../constant');
+const { defaultProjectName } = require('./constant');
+//项目preset配置的名称
 const presetFileName = 'preset.json'
 //基于此项目的preset的路径
-const presetFilePath = '../config/' + presetFileName
+const presetFileProjectPath = '../config/' + presetFileName
+//本地用户目录路径
+const presetFileNativePath = os.homedir() + path.sep + presetFileName;
 
 
 function exeCommand (file, data) {
     //生成preset文件，其它情况不用考虑； vue create --preset必要的
-    presetFileCreate(presetFilePath);
+    presetFileCreate(presetFileProjectPath);
 
     //在用户目录下生成vue项目
     const result = exec("vue create --preset " + presetFileName + " " + defaultProjectName, { cwd : os.homedir() })
@@ -37,16 +40,16 @@ function exeCommand (file, data) {
     })
 }
 //vue cli preset 文件生成在用户目录
-function presetFileCreate (filePath) {
-    if (!fs.existsSync(os.homedir() + path.sep + presetFileName))
-        fs.writeFileSync(os.homedir() + path.sep + presetFileName, fs.readFileSync(filePath, 'utf-8'))
+function presetFileCreate (fileProjectPath) {
+    if (!fs.existsSync(presetFileNativePath))
+        fs.writeFileSync(presetFileNativePath, fs.readFileSync(fileProjectPath, 'utf-8'))
     else
         return false
 }
 
 //vue cli preset 将用户目录的preset文件删除
 function presetFileDelete () {
-    fs.unlink(os.homedir() + path.sep + presetFileName, (err) => {
+    fs.unlink(presetFileNativePath, (err) => {
         if (err) console.error(err)
     })
 }
