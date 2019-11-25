@@ -9,6 +9,10 @@ Vue.use(Antd)
 
 Vue.config.productionTip = false
 
+Array.prototype.clearArray = function() {
+  this.splice(0, this.length);
+};
+
 new Vue({
   router,
   store,

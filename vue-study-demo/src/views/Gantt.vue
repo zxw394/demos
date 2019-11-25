@@ -1,10 +1,14 @@
 <template>
     <div>
         <div ref="ganttBox" class="ganttbox-container"></div>
+        <div style="margin-top: 20px"><button click="save">保存修改数据</button></div>
     </div>
 </template>
 <script>
     import { gantt } from 'dhtmlx-gantt'
+
+    let updateRows = [];
+
     gantt.eachSuccessor = function(callback, root){
         if(!this.isTaskExists(root))
             return;
@@ -66,14 +70,14 @@
                 // console.log(gantt.$data.tasksStore.getItems());//获取全部tasks数据
             }
             if(mode == modes.resize){
-                gantt.eachSuccessor(function(child){
-                    // console.log(child.id, "child.id");
-                    // console.log(child.start_date + child.end_date, "start_date + end_date");
-                    // console.log(diff);
-                    child.start_date = gantt.roundDate(new Date(child.start_date.valueOf() + diff));
-                    child.end_date = gantt.calculateEndDate(child.start_date, child.duration);
-                    gantt.updateTask(child.id);
-                }, id);
+                // gantt.eachSuccessor(function(child){
+                //     // console.log(child.id, "child.id");
+                //     // console.log(child.start_date + child.end_date, "start_date + end_date");
+                //     // console.log(diff);
+                //     child.start_date = gantt.roundDate(new Date(child.start_date.valueOf() + diff));
+                //     child.end_date = gantt.calculateEndDate(child.start_date, child.duration);
+                //     gantt.updateTask(child.id);
+                // }, id);
             }
         });
     })();
@@ -97,10 +101,10 @@
 
                 var textEditor = {type: "text", map_to: "text"};
                 var start_dateEditor = {type: "date", map_to: "start_date", min: new Date(2018, 0, 1),
-                    max: new Date(2019, 0, 1)};
+                    max: new Date(2019, 11, 1)};
                 var durationEditor = {type: "number", map_to: "duration", min:0, max: 100};
                 var end_dateEditor = {type: "date", map_to: "end_date", min: new Date(2018, 0, 1),
-                    max: new Date(2019, 0, 1)}
+                    max: new Date(2019, 11, 1)}
 
 
 
@@ -141,9 +145,9 @@
                 // });
                 gantt.ext.inlineEditors.attachEvent("onSave", function(state){
                     var col = state.columnName;
-                    console.log(state);
-                    console.log(gantt.autoSchedule);
+                    updateRows.push(gantt.getTask(state.id));
                     if(gantt.autoSchedule && (col == "start_date" || col == "end_date" || col == "duration")){
+                        console.log('access');
                         gantt.autoSchedule();
                     }
                     // console.log(gantt.$data.tasksStore.getItems());//获取全部tasks数据
@@ -255,6 +259,13 @@
                     gantt.showLightbox(id);
                 })
                 gantt.$_eventsInitialized = true;
+            },
+            save () {
+                console.log(JSON.stringify(updateRows));
+                //清空数组
+                setTimeout(() => {
+                    updateRows.clearArray()
+                });
             }
         }
     }

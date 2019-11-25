@@ -13,7 +13,7 @@ const presetFileNativePath = os.homedir() + path.sep + presetFileName;
 
 
 function exeCommand (file, data) {
-    //生成preset文件，其它情况不用考虑； vue create --preset必要的
+    //生成preset文件，其它场景不用考虑， 适应于vue create --preset命令的执行
     presetFileCreate(presetFileProjectPath);
 
     //在用户目录下生成vue项目
