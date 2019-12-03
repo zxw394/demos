@@ -3,6 +3,7 @@ node_modules
 json2html-generator/node_modules
 nodeServer/node_modules
 vue-study-demo/node_modules
+ty_project/node_modules
 /dist
 
 # local env files

@@ -1,22 +1,16 @@
 <template>
     <div>
         <div ref="ganttBox" class="ganttbox-container"></div>
-        <div style="margin-top: 20px"><button click="save">保存修改数据</button></div>
     </div>
 </template>
 <script>
     import { gantt } from 'dhtmlx-gantt'
-
     let updateRows = [];
-
     gantt.eachSuccessor = function(callback, root){
         if(!this.isTaskExists(root))
             return;
         // remember tasks we've already iterated in order to avoid infinite loops
         var traversedTasks = arguments[2] || {};
-        // console.log(arguments[2], 'arguments[2]');
-        // console.log(traversedTasks, 'traversedTasks');
-        // console.log(root, 'root');
 
         if(traversedTasks[root])
             return;
@@ -36,7 +30,6 @@
             }
         }
     };
-
     //当source end_date 大于 target source_date时target的source_date自动往后移动，支持循环迭代
     gantt.eachUpdate = function (root) {
         let moveTask = gantt.getTask(root);
@@ -62,33 +55,22 @@
     };
 
     (function(){
-        var diff = 0;
-
+        let diff = 0;
         gantt.attachEvent("onBeforeTaskChanged", function(id, mode, originalTask){
             var modes = gantt.config.drag_mode;
-            // console.log(modes,'modes');
             if(mode == modes.move){
-                var modifiedTask = gantt.getTask(id);
-                // console.log(originalTask, 'originalTask');
-                // console.log(modifiedTask, 'modifiedTask');
-                // console.log(id,'onBeforeTaskChanged');
+                let modifiedTask = gantt.getTask(id);
                 diff = modifiedTask.start_date - originalTask.start_date;
-                // console.log(diff);
             }
             if(mode == modes.resize){
             }
             return true;
         });
-
         //rounds positions of the child items to scale
         gantt.attachEvent("onAfterTaskDrag", function(id, mode, e){
             var modes = gantt.config.drag_mode;
-            // console.log(id, "root id");
             if(mode == modes.move){
                 gantt.eachSuccessor(function(child){
-                    // console.log(child.id, "child.id");
-                    // console.log(child.start_date + child.end_date, "start_date + end_date");
-                    // console.log(diff);
                     child.start_date = gantt.roundDate(new Date(child.start_date.valueOf() + diff));
                     child.end_date = gantt.calculateEndDate(child.start_date, child.duration);
                     gantt.updateTask(child.id);
@@ -110,12 +92,12 @@
         },
         mounted () {
             fetch("https://www.fastmock.site/mock/7f143c4ab35b8dbc46edbcc32c83547a/ty/gantt")
-            .then(resp => resp.json())
-            .then(resp => {
-                this.cloumns = resp.COLUMNS;
-                this.datas = resp.ITEMS[0]
-                return Promise.resolve({cloumns : this.cloumns, datas : this.datas})
-            }).then((resp) => {
+                .then(resp => resp.json())
+                .then(resp => {
+                    this.cloumns = resp.COLUMNS;
+                    this.datas = resp.ITEMS[0]
+                    return Promise.resolve({cloumns : this.cloumns, datas : this.datas})
+                }).then((resp) => {
                 let {cloumns, datas} = resp;
 
                 var textEditor = {type: "text", map_to: "text"};
@@ -125,9 +107,6 @@
                 var end_dateEditor = {type: "date", map_to: "end_date", min: new Date(2018, 0, 1),
                     max: new Date(2019, 11, 1)}
 
-
-
-
                 //初始化事件
                 // this.$_initGanttEvents();
                 //使父级任务能拖动
@@ -136,32 +115,75 @@
                 gantt.config.auto_scheduling_strict = true;
 
                 gantt.config.date_format = "%Y-%m-%d %H:%i";
-                gantt.config.start_date = '2019-07-22 00:00'
-                gantt.config.end_date = '2019-08-22 00:00'
-                gantt.config.grid_width = 660
-                gantt.config.row_height = 30;
+                gantt.config.start_date = '2019-07-30 00:00'
+                gantt.config.end_date = '2019-08-20 00:00'
+                //grid总宽
+                gantt.config.grid_width = 400
+                //grid列宽
+                gantt.config.min_grid_column_width = 50;
+                //甘特图列宽
+                gantt.config.min_column_width = 50;
+                //grid和甘特图行高
+                gantt.config.row_height = 25;
+                //grid tree的icon设置
+                gantt.templates.grid_folder = function(item) {
+                    return null;
+                };
+                gantt.templates.grid_file = function(item) {
+                    return null;
+                };
+                //定义modal框内的属性 begin
+                var opts = [
+                    { key: 1, label: 'High' },
+                    { key: 2, label: 'Normal' },
+                    { key: 3, label: 'Low' }
+                ];
+
+                gantt.config.lightbox.sections = [
+                    {name:"description", height:38, map_to:"text", type:"textarea", focus:true},
+                    {name:"priority",    height:22, map_to:"priority", type:"select", options:opts},
+                    {name:"time",        height:72, map_to:"auto", type:"duration"}
+                ];
+                //定义modal框内的属性 end
 
                 gantt.config.columns = [
-                    {name: "text", tree: true, width: '*', resize: true, editor: textEditor},
-                    {name: "start_date", align: "center", resize: true, editor: start_dateEditor},
-                    {name: "duration", align: "center", editor: durationEditor},
-                    {name: "end_date", align: "center", resize: true, editor: end_dateEditor},
-                    {name: "add", width: 44}
+                    {label: "任务名", name: "text", tree: true, width: 150, align: "left",resize: true, editor: textEditor},
+                    {label: "开始日期", name: "start_date", align: "center", resize: true, width: 80, editor: start_dateEditor},
+                    {label: "计划工期", name: "duration", align: "center", width: 50, editor: durationEditor},
+                    {label: "结束日期", name: "end_date", align: "center", resize: true, width: 80, editor: end_dateEditor},
+                    {label: "", name: "add", width: 80}
                 ];
-                //{name: "end_date", align: "center", resize: true, editor: end_dateEditor},
+                /**
+                gantt.config.columns = cloumns
+                gantt.config.columns =  [
+                    {name:"text", label:"Task name", width:"*", min_width: 150,  tree:true},
+                    {name:"start_date", label:"Start time", width:150 },
+                    {name:"end_date", label:"end time", width:150 },
+                    {name:"duration",   label:"Duration",   width:120 }
+                ];
+                var box = gantt.message({
+                    type:"confirm-warning",
+                    text:"Are you sure you want to do it?"
+                });
+                 **/
 
-                // gantt.config.columns = cloumns
-                // gantt.config.columns =  [
-                //     {name:"text", label:"Task name", width:"*", min_width: 150,  tree:true},
-                //     {name:"start_date", label:"Start time", width:150 },
-                //     {name:"end_date", label:"end time", width:150 },
-                //     {name:"duration",   label:"Duration",   width:120 }
-                // ];
+                //禁用progress
+                gantt.config.drag_progress = false;
+                //指定task class--主要是颜色
+                gantt.templates.task_class = function () {
+                    return "ty_task_color"
+                }
+                //左边表格表头的颜色
+                gantt.templates.grid_header_class = function(columnName, column){
+                    return "grid_header_customer";
+                };
+                gantt.templates.scale_cell_class = function(date){
+                    return "timelin_header_customer"
+                };
 
-                // var box = gantt.message({
-                //     type:"confirm-warning",
-                //     text:"Are you sure you want to do it?"
-                // });
+                gantt.ext.inlineEditors.attachEvent('onBeforeEditStart', function (state) {
+                    return true;
+                })
                 gantt.ext.inlineEditors.attachEvent("onSave", function(state){
                     var col = state.columnName;
                     updateRows.push(gantt.getTask(state.id));
@@ -171,24 +193,29 @@
                     }
                     // console.log(gantt.$data.tasksStore.getItems());//获取全部tasks数据
                 });
+                //双击task弹出框
+                gantt.attachEvent('onTaskDblClick', function (id, e) {
+                    console.log('双击');
+                    return true;
+                })
 
                 gantt.init(this.$refs.ganttBox);
                 gantt.parse(datas);
-                // gantt.parse({
-                //     data: [
-                //         {id: 1, text: "Project #1", start_date: null, duration: null, parent:0, progress: 0, open: true, type:'milestone'},
-                //         {id: 2, text: "Task #1", start_date: "2019-08-01 00:00", duration:5, parent:1, progress: 1},
-                //         {id: 3, text: "Task #2", start_date: "2019-08-06 00:00", duration:2, parent:1, progress: 0.5},
-                //         {id: 4, text: "Task #3", start_date: null, duration: null, parent:1, progress: 0.8, open: true},
-                //         {id: 5, text: "Task #3.1", start_date: "2019-08-09 00:00", duration:2, parent:4, progress: 0.2},
-                //         {id: 6, text: "Task #3.2", start_date: "2019-08-11 00:00", duration:1, parent:4, progress: 0}
-                //     ],
-                //     links:[
-                //         {id:1, source:2, target:3, type:"0"},
-                //         {id:2, source:3, target:4, type:"0"},
-                //         {id:3, source:5, target:6, type:"0"}
-                //     ]
-                // });
+                /** gantt.parse({
+                    data: [
+                        {id: 1, text: "Project #1", start_date: null, duration: null, parent:0, progress: 0, open: true, type:'milestone'},
+                        {id: 2, text: "Task #1", start_date: "2019-08-01 00:00", duration:5, parent:1, progress: 1},
+                        {id: 3, text: "Task #2", start_date: "2019-08-06 00:00", duration:2, parent:1, progress: 0.5},
+                        {id: 4, text: "Task #3", start_date: null, duration: null, parent:1, progress: 0.8, open: true},
+                        {id: 5, text: "Task #3.1", start_date: "2019-08-09 00:00", duration:2, parent:4, progress: 0.2},
+                        {id: 6, text: "Task #3.2", start_date: "2019-08-11 00:00", duration:1, parent:4, progress: 0}
+                    ],
+                    links:[
+                        {id:1, source:2, target:3, type:"0"},
+                        {id:2, source:3, target:4, type:"0"},
+                        {id:3, source:5, target:6, type:"0"}
+                    ]
+                });**/
             })
         },
         methods : {
@@ -288,41 +315,47 @@
             }
         }
     }
-    /**
-     * 老数据
-     * **/
-    // gantt.config.xml_date = "%Y-%m-%d %H:%i";
-    // gantt.init("gantt_here");
-    // gantt.parse({
-    //     data: [
-    //         {id: 2, text: "Task #1", start_date: "2019-08-01 00:00", duration:5, progress: 1},
-    //         {id: 3, text: "Task #2", start_date: "2019-08-06 00:00", duration:2, progress: 1},
-    //         {id: 5, text: "Task #3.1", start_date: "2019-08-09 00:00", duration:2, progress: 1},
-    //         {id: 6, text: "Task #3.2", start_date: "2019-08-11 00:00", duration:1, progress: 1},
-    //     ],
-    // });
 </script>
 <style>
-
     /*@import "~dhtmlx-gantt/codebase/sources/skins/dhtmlxgantt_broadway.css";*/
-    @import "~dhtmlx-gantt/codebase/dhtmlxgantt.css";
+    @import "../../node_modules/dhtmlx-gantt/codebase/dhtmlxgantt.css";
     .ganttbox-container{
-        min-height: 500px;
+        min-height: 400px;
     }
 
-     html, body {
-         height: 100%;
-         padding: 0px;
-         margin: 0px;
-         overflow: hidden;
-     }
+    html, body {
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+        overflow: hidden;
+    }
 
     .gantt_row_project{
         font-weight: bold;
     }
-
     .gantt-info ul{
         line-height: 150%;
     }
-
+    .ty_task_color{
+        /*background-color:#409EFF;*/
+        /*border: 1px solid #2a7dd3;*/
+        background-color: #3b4156;
+        border: 1px solid #161e3a;
+    }
+    .ty_task_color:hover{
+        /*background-color: #51a7ff;*/
+        /*border-color: #86c3ff;*/
+        background-color: #474c5e;
+        border-color: #6f7377;
+    }
+    .gantt_add, .gantt_grid_head_add{
+        background-image:url('../assets/imgs/add-icon_01.png') !important;
+    }
+    .grid_header_customer{
+        color:#252836 !important;
+        font-weight: bold;
+    }
+    .timelin_header_customer{
+        color:#252836 !important;
+    }
 </style>

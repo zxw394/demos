@@ -46,5 +46,15 @@ export default new Router({
       name: 'Gantt',
       component: () => import(/* webpackChunkName: "table" */ './views/Gantt.vue')
     },
+    {
+      path: '/treegrid',
+      name: 'Treegrid',
+      component: () => import(/* webpackChunkName: "table" */ './views/Treegrid.vue')
+    },
+    {
+      path: '/tree',
+      name: 'Tree',
+      component: () => import(/* webpackChunkName: "table" */ './views/Tree.vue')
+    },
   ]
 })

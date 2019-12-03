@@ -7,6 +7,8 @@
       <router-link to="/">自定义组件</router-link> |
       <router-link to="/store">vuex</router-link> |
       <router-link to="/gantt">gantt</router-link> |
+      <router-link to="/treegrid">treegrid</router-link> |
+      <router-link to="/tree">tree</router-link> |
       <a @click="$router.push('/layout')">layout</a>
     </div>
     <router-view :key="key"/>

@@ -1,0 +1,63 @@
+#app {
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  height: 100%;
+}
+#nav {
+  padding: 30px;
+
+  a {
+    font-weight: bold;
+    color: #2c3e50;
+
+    &.router-link-exact-active {
+      color: #42b983;
+    }
+  }
+}
+//app的包装壳
+.app-wrapper{
+  height: 100%;
+  width: 100%;
+}
+//sidebar.vue
+.sidebar-box{
+  max-width: 210px;
+  height: 100%;
+  position: fixed;
+  font-size: 0px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1001;
+  overflow: hidden;
+  .el-menu{
+    height: 100%;
+  }
+  .title-span{
+    padding-bottom: 14px;
+  }
+  .title-box{
+    background-color:#040E29;
+    font-size:18px;
+    font-weight: bold;
+    color:#fff
+  }
+  .el-submenu{
+    text-align: left;
+    .nav-icon{
+      margin-right: 16px;
+    }
+  }
+  .el-menu-item{
+    text-align: center;
+    &.is-active{
+      background-color: #2153D4 !important;
+      color:#fff;
+    }
+  }
+}
+//navbar.vue
