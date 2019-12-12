@@ -4,7 +4,9 @@
                 default-active="2"
                 class="el-menu-vertical-demo"
                 :collapse="isCollapse"
+                router
                 background-color="#0B1331"
+                :default-active="$route.path"
                 text-color="#fff">
             <el-menu-item-group class="title-box">
                 <div class="title-span"><span v-if="!isCollapse">IntePLM</span></div>
@@ -14,8 +16,9 @@
                     <i class="el-icon-setting nav-icon"></i>
                     <span>项目管理</span>
                 </template>
-                <el-menu-item index="1-1">项目计划管理</el-menu-item>
-                <el-menu-item index="1-2">我的项目任务</el-menu-item>
+                <el-menu-item index="/taskManage">项目计划管理</el-menu-item>
+                <el-menu-item index="/myTask">我的项目任务</el-menu-item>
+                <el-menu-item index="/resource">资源分布</el-menu-item>
             </el-submenu>
             <el-submenu index="2">
                 <template slot="title">
@@ -32,20 +35,17 @@
 <script>
 export default {
     name: "Sidebar",
-    props : {
-        isCollapse : {
-            type : Boolean,
-            default : false
+    props: {
+        isCollapse: {
+            type: Boolean,
+            default: false
         },
     },
-    methods : {
-
-    }
 }
 </script>
 
 <style scoped>
-.el-menu-vertical-demo:not(.el-menu--collapse) {
-    width: 210px;
-}
+    .el-menu-vertical-demo:not(.el-menu--collapse) {
+        width: 210px;
+    }
 </style>

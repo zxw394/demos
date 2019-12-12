@@ -11,6 +11,10 @@ import './assets/styles/app.less'
 Vue.use(ElementUI);
 Vue.config.productionTip = false;
 
+Array.prototype.clearArray = function() {
+  this.splice(0, this.length);
+};
+
 new Vue({
   router,
   store,

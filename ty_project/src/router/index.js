@@ -5,13 +5,23 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/about",
-    name: "about",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "navbar" */ "../components/Navbar.vue")
+    path: "/",
+    redirect: "/taskManage"
+  },
+  {
+    path: "/taskManage",
+    name: "taskManage",
+    component: () => import(/* webpackChunkName: "taskManage" */ "@/components/pages/TaskManage"),
+  },
+  {
+    path: "/myTask",
+    name: "myTask",
+    component: () => import(/* webpackChunkName: "taskManage" */ "@/components/pages/MyTask"),
+  },
+  {
+    path: "/resource",
+    name: "resource",
+    component: () => import(/* webpackChunkName: "resource" */ "@/components/pages/Resource"),
   }
 ];
 

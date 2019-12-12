@@ -9,60 +9,61 @@ export default {
     props : {
         id : {
             type : String,
-            default : 'aside_tree'
+            default : 'default_tree'
         },
         datas : {
             type : Array,
             default : () => []
-        }
+        },
+        afterClickedCb : {
+            type : Function,
+            default : function () {}
+        },
+    },
+    beforeCreate(){
+
+    },
+    created(){
+    },
+    beforeMount(){
     },
     mounted() {
         tree = new Tree(this.$refs[this.id], {
             keyNavigation: true,
             editing: true,
-            css: "style_one"
         });
-        tree.data.parse(this.datas);
-        let self = this
-        //点击树的某一项
-        tree.events.on("itemClick", function (id, e) {
-            if (id == 1) {
-                self.viewType = 'gantt';
-            }
-            if (id == 2) {
-                self.viewType = 'go';
-            }
-            if (id == 3) {
-                self.viewType = 'to';
-            }
-        })
+        tree = new Tree(this.$refs[this.id], {
+            keyNavigation: true,
+            editing: true,
+        });
         this.treeEventsInit();
+        tree.data.parse(this.datas);
     },
     methods : {
         treeEventsInit () {
+            let vueInst = this;
+            //双击树的某一项
             tree.events.on("ItemDblClick", function(id, e){
                 tree.data.update(id, {opened: !tree.data.getItem(id).opened})
             });
-
-            tree.events.on("itemContextMenu", function(id, e){
-                console.log(e)
-                let myContextMenu = new ContextMenu({
-                    items: [
-                        {id: "itemText"},
-                        {type: "separator"},
-                        {id: "cut", text: "Cut"},
-                        {id: "copy", text: "Copy"},
-                        {id: "paste", text: "Paste"}
-                    ]
-                })
-                for (let prop in myContextMenu) {
-                    console.log(prop + " : " + myContextMenu[prop]);
-                }
-                console.log("====================================")
-                for (let prop in tree) {
-                    // console.log(prop)
-                }
-            });
+            //点击树的某一项
+            tree.events.on("itemClick", function (id, e) {
+                console.log("click");
+                vueInst.afterClickedCb(tree, id, e);
+            })
+            //右键点击树的某一项
+            // tree.events.on("itemContextMenu", function(id, e){
+            //     console.log(e)
+            //     let myContextMenu = new ContextMenu({
+            //         items: [
+            //             {id: "itemText"},
+            //             {type: "separator"},
+            //             {id: "cut", text: "Cut"},
+            //             {id: "copy", text: "Copy"},
+            //             {id: "paste", text: "Paste"}
+            //         ]
+            //     })
+            // });
         },
     }
 }
