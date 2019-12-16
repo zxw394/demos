@@ -4,7 +4,10 @@
             <Card>
                 <template slot="title">树型结构</template>
                 <template slot="content">
-                    <Tree :datas="treeDatas" ref="tree" :afterClickedCb="treeAfterClickedCb"></Tree>
+                    <Tree v-if="treeDataLoaded"
+                          :datas="treeDatas"
+                          ref="tree"
+                          @onAfterClickedCb="treeAfterClickedCb"></Tree>
                 </template>
             </Card>
         </el-aside>
@@ -14,7 +17,10 @@
                     甘特图
                 </template>
                 <template slot="content">
-                    <Gantt v-if='ganttDataLoaded' :datas="ganttDatas" ref="gantt" @task-selected="collapseGanttBox"></Gantt>
+                    <Gantt  v-if='ganttDataLoaded'
+                            :datas="ganttDatas"
+                            ref="gantt"
+                            @onTaskSelected="collapseGanttBox"></Gantt>
                 </template>
                 <template slot="operators">
                     <el-button plain class="card-header-btn" @click="criticalPathDisplayHandler">
@@ -25,15 +31,6 @@
                     </el-button>
                     <el-button plain class="card-header-btn" @click="$refs.gantt.save()">
                         保存数据 <i class="el-icon-edit-outline"></i>
-                    </el-button>
-                    <el-button plain class="card-header-btn" @click="destoryTree">
-                        摧毁树 <i class="el-icon-edit-outline"></i>
-                    </el-button>
-                    <el-button plain class="card-header-btn" @click="reloadTree(treeDatas)">
-                        重新加载树 <i class="el-icon-edit-outline"></i>
-                    </el-button>
-                    <el-button plain class="card-header-btn" @click="updateTree()">
-                        更新树 <i class="el-icon-edit-outline"></i>
                     </el-button>
                 </template>
             </Card>
@@ -47,11 +44,10 @@
                     <template>
                         <div style="width: 50%;float:left">
                             <h3 class="tab-title">常规属性</h3>
-                            <el-table
-                                    fit
-                                    :show-header="false"
-                                    :data="tableDatas"
-                                    style="width: 100%">
+                            <el-table fit
+                                      :show-header="false"
+                                      :data="tableDatas"
+                                      style="width: 100%">
                                 <el-table-column
                                         prop="name">
                                 </el-table-column>
@@ -92,13 +88,13 @@
 import Gantt from "@/components/Gantt"
 import Tree from "@/components/Tree"
 import Card from "@/components/Card";
-import {ganttDatas, dataset} from "@/components/testData"
+// import {ganttDatas, dataset} from "@/components/testData"
 export default {
     name: "TaskManage",
     data () {
         return {
-            ganttDataLoaded: false,
-            treeDatas : [],
+            treeDatas : "",
+            treeDataLoaded: false,
             tableDatas : [{
                 value: '2016-05-02',
                 name: '结束日期',
@@ -113,23 +109,27 @@ export default {
                 name: '负责人',
             }],
             ganttDatas: [],
+            ganttDataLoaded: false,
             collapseGanttBoxProp:false,
             criticalPathDisplay: false,
         }
     },
     created() {
-        this.treeDatas = dataset;
         fetch("https://www.fastmock.site/mock/7f143c4ab35b8dbc46edbcc32c83547a/ty/gantt")
         .then(resp => resp.json())
         .then(resp => {
-            // this.ganttDatas = resp.ITEMS[0];
-            this.ganttDatas = ganttDatas;
+            this.ganttDatas = resp;
             //数据获取后，初始化gantt图
+        }).finally(() => {
             this.ganttDataLoaded = true;
         })
-    },
-    mounted () {
-        this.$refs.tree.$forceUpdate()
+        fetch("https://www.fastmock.site/mock/7f143c4ab35b8dbc46edbcc32c83547a/ty/dhx_tree")
+        .then(resp => resp.json())
+        .then(resp => {
+            this.treeDatas = resp;
+        }).finally(() => {
+            this.treeDataLoaded = true
+        })
     },
     components : {
         Gantt,
@@ -138,37 +138,29 @@ export default {
     },
     methods: {
         //点击tree的某项时触发
-        treeAfterClickedCb (tree,id,e) {
+        treeAfterClickedCb (tree, id, e) {
             fetch("https://www.fastmock.site/mock/7f143c4ab35b8dbc46edbcc32c83547a/ty/gantt2")
             .then(resp => resp.json())
             .then(resp => {
-                console.log(resp);
                 this.$refs.gantt.update(resp)
             })
         },
+        //折叠
         collapseGanttBox(){
-            this.collapseGanttBoxProp = !this.collapseGanttBoxProp
+            this.collapseGanttBoxProp = true
             this.$refs['gantt-box'].$el.classList.add("_collapse")
         },
+        //打开
         expandGanttBox(){
-            this.collapseGanttBoxProp = !this.collapseGanttBoxProp
+            this.collapseGanttBoxProp = false
             this.$refs['gantt-box'].$el.classList.remove("_collapse")
         },
+        //关键路径处理
         criticalPathDisplayHandler(){
-            if (this.criticalPathDisplay)
-                this.$refs.gantt.hideCriticalPath();
+            if (this.criticalPathDisplay) this.$refs.gantt.hideCriticalPath();
             else this.$refs.gantt.showCriticalPath();
             this.criticalPathDisplay = !this.criticalPathDisplay;
         },
-        updateTree (data) {
-            this.$refs.tree.update(data);
-        },
-        destoryTree () {
-            this.$refs.tree.destructor();
-        },
-        reloadTree (data) {
-            this.$refs.tree.reload(data);
-        }
     },
 }
 

@@ -4,7 +4,7 @@
             <Card>
                 <template slot="title">任务</template>
                 <template slot="content">
-                    <Tree :datas="treeDatas"></Tree>
+                    <Tree :datas="treeDatas" v-if="treeDataLoaded"></Tree>
                 </template>
             </Card>
         </el-aside>
@@ -15,7 +15,7 @@
                 </template>
                 <template slot="content">
                     <el-table
-                            :data="tableDatas"
+                            :data="mainTableDatas"
                             style="width: 100%;margin-bottom: 20px;"
                             row-key="id"
                             border
@@ -83,7 +83,7 @@
                 </template>
                 <template slot="content">
                     <div style="padding-left: 10px;padding-right: 10px">
-                        <el-collapse v-model="activeNames" accordion @change="handleChange">
+                        <el-collapse v-model="activeNames" accordion>
                             <el-collapse-item  name="1">
                                 <template slot="title">
                                     <span style="font-weight: bold;color:#161e3a">基本属性</span>
@@ -93,7 +93,7 @@
                                         @cell-dblclick="cellDbClick"
                                         size="small"
                                         :show-header="false"
-                                        :data="tableData"
+                                        :data="rightSidebarTableDatas"
                                         style="width: 100%">
                                     <el-table-column
                                             prop="name"
@@ -146,8 +146,6 @@
 <script>
     import Card from "@/components/Card"
     import Tree from "@/components/Tree"
-    import TreeGrid from "@/components/TreeGrid";
-
     function debounce(fn, wait) {
         var timer = null;
         return function () {
@@ -163,17 +161,16 @@
         }
     }
 
-    let originCell
-    let duplicateCell = "";
     let hasEditableInput = false;
     export default {
         name: "MyTask",
         data () {
             return {
-                treeDatas : [],
+                treeDatas : "",
+                treeDataLoaded : false,
                 treeGridDatas : [],
                 activeNames : ['1'],
-                tableData : [{
+                rightSidebarTableDatas: [{
                     value: '2016-05-02',
                     name: '结束日期',
                 }, {
@@ -186,7 +183,7 @@
                     value: 'lucy',
                     name: '负责人',
                 }],
-                tableDatas : [
+                mainTableDatas : [
                     {
                         id: 1,
                         date: 'parent',
@@ -208,17 +205,17 @@
             }
         },
         created () {
-            this.treeDatas = dataSet;
+            fetch("https://www.fastmock.site/mock/7f143c4ab35b8dbc46edbcc32c83547a/ty/dhx_tree2")
+            .then(resp => resp.json())
+            .then(resp => {
+                this.treeDatas = resp;
+                this.treeDataLoaded = true;
+            })
         },
         methods : {
-            handleChange () {
-
-            },
             cellDbClick(row, column, cell, event){
-                console.log(row);
-                console.log(column);
-                console.log(cell);
-                // console.log(event);
+                let originCell;
+                let duplicateCell;
                 if (hasEditableInput) return false
                 duplicateCell = cell.cloneNode(true);
                 let input = document.createElement("input");
@@ -233,7 +230,6 @@
                         }
                     })
                     originCell.replaceWith(duplicateCell);
-                    console.log(this.tableDatas)
                     hasEditableInput = false;
                 }
                 //循环删除子节点
@@ -247,31 +243,8 @@
         components: {
             Card,
             Tree,
-            TreeGrid,
         }
     }
-    var dataSet = [
-        {
-            value: "我负责的项目任务",
-            id: "1"
-        },
-        {
-            value: "我下达的项目任务",
-            id: "2"
-        },
-        {
-            value: "待审核的任务",
-            id: "3"
-        },
-        {
-            value: "待审核的问题",
-            id: "4"
-        },
-        {
-            value: "待解决的问题",
-            id: "5"
-        }
-    ]
 </script>
 
 <style scoped lang="less">

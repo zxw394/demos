@@ -1,15 +1,11 @@
 <template>
-<!--    <div style="height: 100%;overflow: auto">-->
-<!--    <button @click="criticalPath($event)">Show</button>-->
-    <div ref="ganttBox" class="ganttbox-container"></div>
-<!--    </div>-->
+    <div ref="gantt_ele" class="ganttbox-container"></div>
 </template>
 <script>
     import "@/assets/lib/gantt"
     import "@/assets/lib/critical_path"
     import "@/assets/lib/auto_scheduling"
     import "dhtmlx-gantt/codebase/ext/dhtmlxgantt_undo";
-
     let updateRows = [];
     /*
     * 自定义编排
@@ -144,14 +140,17 @@
     }
 
     export default {
-        props: ['datas'],
+        props: {
+            datas : {
+                type : Object,
+                default : () => {}
+            }
+        },
         mounted () {
                 var textEditor = {type: "text", map_to: "text"};
-                var start_dateEditor = {type: "date", map_to: "start_date", min: new Date(2018, 0, 1),
-                    max: new Date(2019, 11, 1)};
+                var start_dateEditor = {type: "date", map_to: "start_date", min: new Date(2018, 0, 1),max: new Date(2019, 11, 1)};
                 var durationEditor = {type: "number", map_to: "duration", min:0, max: 100};
-                var end_dateEditor = {type: "date", map_to: "end_date", min: new Date(2018, 0, 1),
-                    max: new Date(2019, 11, 1)}
+                var end_dateEditor = {type: "date", map_to: "end_date", min: new Date(2018, 0, 1),max: new Date(2019, 11, 1)}
                 /*
                 * 当task移动时，子任务自动编排
                 * */
@@ -206,7 +205,7 @@
                  * 定义列的配置
                  * */
                 gantt.config.columns = [
-                    {label: "任务名", name: "text", tree: true,width: "80", align: "left",resize: true, editor: textEditor},
+                    {label: "任务名", name: "text", tree: true,width: "90", align: "left",resize: true, editor: textEditor},
                     {label: "开始日期", name: "start_date", align: "center", editor: start_dateEditor,resize: true},
                     {label: "计划工期", name: "duration", align: "center", editor: durationEditor,resize: true,},
                     {label: "结束日期", name: "end_date", align: "center", editor: end_dateEditor,resize: true,},
@@ -224,21 +223,29 @@
                 };
 
                 gantt.ext.inlineEditors.attachEvent("onSave", function(state){
+                    console.log("editors on save");
                     let col = state.columnName;
                     updateRows.push(gantt.getTask(state.id));
                     console.log(updateRows);
                     if(gantt.autoSchedule && (col == "start_date" || col == "end_date" || col == "duration")){
-                        console.log('access');
-                        gantt.autoSchedule();
+                        gantt.autoSchedule(state.id);
                     }
                 });
                 //双击grid单元格开始编辑（默认单击开始线上编辑）
                 canDbClickShowInlineEditorConfig();
-
-                gantt.init(this.$refs.ganttBox);
-                gantt.parse(gantt_data);
+                //初始化事件
+                this._ganttEventInit()
+                gantt.init(this.$refs.gantt_ele);
+                gantt.parse(this.datas);
         },
         methods : {
+            _ganttEventInit () {
+              let vueInst = this
+              gantt.attachEvent("onTaskClick", function (id, e) {
+                  vueInst.$emit("onTaskSelected", gantt, id ,e)
+                  return true;
+              });
+            },
             save () {
                 console.log(JSON.stringify(updateRows));
                 //清空数组
