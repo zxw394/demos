@@ -1,16 +1,17 @@
 <template>
-    <div :ref="id"></div>
+    <div ref="tree_demo"></div>
 </template>
 <script>
-import {Tree, ContextMenu, TreeCollection} from "dhx-tree";
+import {Tree} from 'dhx-tree';
 let tree;
+let id = "ty" + new Date().getTime();
 export default {
     name: "Tree.vue",
     props : {
-        id : {
-            type : String,
-            default : 'default_tree'
-        },
+        // id : {
+        //     type : String,
+        //     default : 'default_tree'
+        // },
         datas : {
             type : Array,
             default : () => []
@@ -20,24 +21,27 @@ export default {
             default : function () {}
         },
     },
+    data () {
+        return {
+            id : id
+        }
+    },
     beforeCreate(){
-
+        console.log("beforeCreate !!!!!!!")
     },
     created(){
     },
     beforeMount(){
     },
     mounted() {
-        tree = new Tree(this.$refs[this.id], {
+        if (tree) tree = undefined;
+        console.log(tree);
+        tree = new Tree(this.$refs['tree_demo'], {
             keyNavigation: true,
-            editing: true,
+            // editing: true,
         });
-        tree = new Tree(this.$refs[this.id], {
-            keyNavigation: true,
-            editing: true,
-        });
-        this.treeEventsInit();
-        tree.data.parse(this.datas);
+        // this.treeEventsInit();
+        tree.data.parse(this.datas,"json");
     },
     methods : {
         treeEventsInit () {
@@ -65,7 +69,79 @@ export default {
             //     })
             // });
         },
-    }
+        destructor () {
+            setTimeout(()=>{console.log(tree)}, 2000);
+        },
+        reload (data) {
+            tree.data.parse(data,"json")
+        },
+        update (data) {
+            tree.data.parse([
+                {
+                    value: "project",
+                    id: "project",
+                    opened: true,
+                    items: [
+                        {
+                            value: "000",
+                            id: "history",
+                            items: [
+                                {
+                                    value: "task1",
+                                    id: "1"
+                                },
+                                {
+                                    value: "task2",
+                                    id: "2"
+                                },
+                                {
+                                    value: "task3",
+                                    id: "3"
+                                }
+                            ]
+                        },
+                        {
+                            value: "111",
+                            id: "fantasy",
+                            items: [
+                                {
+                                    value: "task4",
+                                    id: "af"
+                                },
+                                {
+                                    value: "task5",
+                                    id: "pr"
+                                }
+                            ]
+                        },
+                        {
+                            value: "222",
+                            id: "teens",
+                            items: [
+                                {
+                                    value: "task6",
+                                    id: "jw"
+                                },
+                                {
+                                    value: "task7",
+                                    id: "mc"
+                                },
+                                {
+                                    value: "task8",
+                                    id: "gn"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ], "json");
+            // tree.paint();
+        }
+    },
+    // destroyed() {
+    //     console.log("destroyed ~~~~~ ");
+    //     console.log(tree);
+    // }
 }
 </script>
 

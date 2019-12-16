@@ -5,91 +5,91 @@
 <!--    </div>-->
 </template>
 <script>
-    // import { gantt } from 'dhtmlx-gantt'
     import "@/assets/lib/gantt"
     import "@/assets/lib/critical_path"
     import "@/assets/lib/auto_scheduling"
     import "dhtmlx-gantt/codebase/ext/dhtmlxgantt_undo";
-    // import "dhtmlx-gantt/codebase/ext/dhtmlxgantt_undo"
-    // import "dhtmlx-gantt/codebase/ext/dhtmlxgantt_keyboard_navigation"
 
     let updateRows = [];
-    // gantt.eachSuccessor = function(callback, root){
-    //     if(!this.isTaskExists(root))
-    //         return;
-    //     // remember tasks we've already iterated in order to avoid infinite loops
-    //     var traversedTasks = arguments[2] || {};
-    //
-    //     if(traversedTasks[root])
-    //         return;
-    //     traversedTasks[root] = true;
-    //     var rootTask = this.getTask(root);
-    //     var links = rootTask.$source;
-    //     // console.log(links, 'links');
-    //     if(links){
-    //         for(var i=0; i < links.length; i++){
-    //             var link = this.getLink(links[i]);
-    //             console.log(link);
-    //             if(this.isTaskExists(link.target) && !traversedTasks[link.target]){
-    //                 callback.call(this, this.getTask(link.target));
-    //                 // iterate the whole branch, not only first-level dependencies
-    //                 this.eachSuccessor(callback, link.target, traversedTasks);
-    //             }
-    //         }
-    //     }
-    // };
-    // //当source end_date 大于 target source_date时target的source_date自动往后移动，支持循环迭代
-    // gantt.eachUpdate = function (root) {
-    //     let moveTask = gantt.getTask(root);
-    //     let moveTaskTarget = [];
-    //
-    //     this.getLinks().forEach((item) => {
-    //         if (item.source == root) {
-    //             moveTaskTarget.push(item.target);
-    //         }
-    //     })
-    //     console.log(moveTaskTarget);
-    //     if (moveTaskTarget.length) {
-    //         moveTaskTarget.map((targetId) => {
-    //             let target = this.getTask(targetId);
-    //             if (moveTask.end_date.valueOf() > target.start_date.valueOf()) {
-    //                 target.start_date = moveTask.end_date;
-    //                 target.end_date = gantt.calculateEndDate(target.start_date, target.duration)
-    //                 this.updateTask(target.id);
-    //                 this.eachUpdate(target.id);
-    //             }
-    //         })
-    //     }
-    // };
+    /*
+    * 自定义编排
+    * */
+    function customizeAutoSchedule() {
+        gantt.eachSuccessor = function(callback, root){
+            if(!this.isTaskExists(root))
+                return;
+            // remember tasks we've already iterated in order to avoid infinite loops
+            var traversedTasks = arguments[2] || {};
 
-    // (function(){
-    //     let diff = 0;
-    //     gantt.attachEvent("onBeforeTaskChanged", function(id, mode, originalTask){
-    //         var modes = gantt.config.drag_mode;
-    //         if(mode == modes.move){
-    //             let modifiedTask = gantt.getTask(id);
-    //             diff = modifiedTask.start_date - originalTask.start_date;
-    //         }
-    //         if(mode == modes.resize){
-    //         }
-    //         return true;
-    //     });
-    //     //rounds positions of the child items to scale
-    //     gantt.attachEvent("onAfterTaskDrag", function(id, mode, e){
-    //         var modes = gantt.config.drag_mode;
-    //         if(mode == modes.move){
-    //             gantt.eachSuccessor(function(child){
-    //                 child.start_date = gantt.roundDate(new Date(child.start_date.valueOf() + diff));
-    //                 child.end_date = gantt.calculateEndDate(child.start_date, child.duration);
-    //                 gantt.updateTask(child.id);
-    //             }, id);
-    //             // console.log(gantt.$data.tasksStore.getItems());//获取全部tasks数据
-    //         }
-    //         if(mode == modes.resize){
-    //             gantt.eachUpdate(id)
-    //         }
-    //     });
-    // })();
+            if(traversedTasks[root])
+                return;
+            traversedTasks[root] = true;
+            var rootTask = this.getTask(root);
+            var links = rootTask.$source;
+            // console.log(links, 'links');
+            if(links){
+                for(var i=0; i < links.length; i++){
+                    var link = this.getLink(links[i]);
+                    console.log(link);
+                    if(this.isTaskExists(link.target) && !traversedTasks[link.target]){
+                        callback.call(this, this.getTask(link.target));
+                        // iterate the whole branch, not only first-level dependencies
+                        this.eachSuccessor(callback, link.target, traversedTasks);
+                    }
+                }
+            }
+        };
+        //当source end_date 大于 target source_date时target的source_date自动往后移动，支持循环迭代
+        gantt.eachUpdate = function (root) {
+            let moveTask = gantt.getTask(root);
+            let moveTaskTarget = [];
+
+            this.getLinks().forEach((item) => {
+                if (item.source == root) {
+                    moveTaskTarget.push(item.target);
+                }
+            })
+            console.log(moveTaskTarget);
+            if (moveTaskTarget.length) {
+                moveTaskTarget.map((targetId) => {
+                    let target = this.getTask(targetId);
+                    if (moveTask.end_date.valueOf() > target.start_date.valueOf()) {
+                        target.start_date = moveTask.end_date;
+                        target.end_date = gantt.calculateEndDate(target.start_date, target.duration)
+                        this.updateTask(target.id);
+                        this.eachUpdate(target.id);
+                    }
+                })
+            }
+        };
+
+        let diff = 0;
+        gantt.attachEvent("onBeforeTaskChanged", function(id, mode, originalTask){
+            var modes = gantt.config.drag_mode;
+            if(mode == modes.move){
+                let modifiedTask = gantt.getTask(id);
+                diff = modifiedTask.start_date - originalTask.start_date;
+            }
+            if(mode == modes.resize){
+            }
+            return true;
+        });
+        //rounds positions of the child items to scale
+        gantt.attachEvent("onAfterTaskDrag", function(id, mode, e){
+            var modes = gantt.config.drag_mode;
+            if(mode == modes.move){
+                gantt.eachSuccessor(function(child){
+                    child.start_date = gantt.roundDate(new Date(child.start_date.valueOf() + diff));
+                    child.end_date = gantt.calculateEndDate(child.start_date, child.duration);
+                    gantt.updateTask(child.id);
+                }, id);
+                // console.log(gantt.$data.tasksStore.getItems());//获取全部tasks数据
+            }
+            if(mode == modes.resize){
+                gantt.eachUpdate(id)
+            }
+        });
+    }
 
     function canDbClickShowInlineEditorConfig () {
         let mapping = {
@@ -106,10 +106,6 @@
                     inlineEditors.hide();
                     return true;
                 });
-                // gantt.attachEvent("onTaskClick", function () {
-                //     inlineEditors.hide();
-                //     return true;
-                // })
             },
             onShow: function(inlineEditors, node){
                 node.onkeydown = function (e) {
@@ -171,29 +167,27 @@
                 * 出现周末时间
                 * */
                 gantt.config.work_time = true;
-                gantt.config.correct_work_time = true;
+                // gantt.config.correct_work_time = true;
                 //如果时周末时间，设置列的样式
                 gantt.templates.timeline_cell_class = function (task, date) {
                     if (!gantt.isWorkTime(date)) return "week_end"
                     return "";
                 }
 
-                //grid总宽
-                // gantt.config.grid_width = 400
-                //grid列宽
-                // gantt.config.min_grid_column_width =40;
                 //甘特图列宽
                 gantt.config.min_column_width = 40;
                 //grid和甘特图行高
                 gantt.config.row_height = 25;
-                //grid tree的icon设置
-                // gantt.templates.grid_folder = function(item) {
-                //     return null;
-                // };
-                // gantt.templates.grid_file = function(item) {
-                //     return null;
-                // };
 
+                /*
+                grid tree的icon设置
+                gantt.templates.grid_folder = function(item) {
+                    return null;
+                };
+                gantt.templates.grid_file = function(item) {
+                    return null;
+                };
+                * */
 
                 /*
                  * 定义modal框内的属性
@@ -218,12 +212,7 @@
                     {label: "结束日期", name: "end_date", align: "center", editor: end_dateEditor,resize: true,},
                     {label: "", name: "add"}
                 ];
-                /**
-                var box = gantt.message({
-                    type:"confirm-warning",
-                    text:"Are you sure you want to do it?"
-                });
-                 **/
+
                 //禁用progress
                 gantt.config.drag_progress = false;
                 //左边表格表头的颜色
@@ -235,7 +224,7 @@
                 };
 
                 gantt.ext.inlineEditors.attachEvent("onSave", function(state){
-                    var col = state.columnName;
+                    let col = state.columnName;
                     updateRows.push(gantt.getTask(state.id));
                     console.log(updateRows);
                     if(gantt.autoSchedule && (col == "start_date" || col == "end_date" || col == "duration")){
@@ -307,7 +296,6 @@
 </script>
 
 <style>
-    /*@import "~dhtmlx-gantt/codebase/sources/skins/dhtmlxgantt_broadway.css";*/
     @import "~dhtmlx-gantt/codebase/dhtmlxgantt.css";
     /*@import "~dhtmlx-gantt/codebase/skins/dhtmlxgantt_meadow.css";*/
     .ganttbox-container{

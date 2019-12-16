@@ -4,7 +4,7 @@
             <Card>
                 <template slot="title">任务</template>
                 <template slot="content">
-                    <Tree :datas="treeDatas" id="mytask_tree"></Tree>
+                    <Tree :datas="treeDatas"></Tree>
                 </template>
             </Card>
         </el-aside>

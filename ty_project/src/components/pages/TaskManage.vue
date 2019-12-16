@@ -4,7 +4,7 @@
             <Card>
                 <template slot="title">树型结构</template>
                 <template slot="content">
-                    <Tree :datas="treeDatas" id="taskmanage_tree" :afterClickedCb="treeAfterClickedCb"></Tree>
+                    <Tree :datas="treeDatas" ref="tree" :afterClickedCb="treeAfterClickedCb"></Tree>
                 </template>
             </Card>
         </el-aside>
@@ -25,6 +25,15 @@
                     </el-button>
                     <el-button plain class="card-header-btn" @click="$refs.gantt.save()">
                         保存数据 <i class="el-icon-edit-outline"></i>
+                    </el-button>
+                    <el-button plain class="card-header-btn" @click="destoryTree">
+                        摧毁树 <i class="el-icon-edit-outline"></i>
+                    </el-button>
+                    <el-button plain class="card-header-btn" @click="reloadTree(treeDatas)">
+                        重新加载树 <i class="el-icon-edit-outline"></i>
+                    </el-button>
+                    <el-button plain class="card-header-btn" @click="updateTree()">
+                        更新树 <i class="el-icon-edit-outline"></i>
                     </el-button>
                 </template>
             </Card>
@@ -119,6 +128,9 @@ export default {
             this.ganttDataLoaded = true;
         })
     },
+    mounted () {
+        this.$refs.tree.$forceUpdate()
+    },
     components : {
         Gantt,
         Tree,
@@ -130,7 +142,8 @@ export default {
             fetch("https://www.fastmock.site/mock/7f143c4ab35b8dbc46edbcc32c83547a/ty/gantt2")
             .then(resp => resp.json())
             .then(resp => {
-                this.$refs.gantt.update(resp.ITEMS[0])
+                console.log(resp);
+                this.$refs.gantt.update(resp)
             })
         },
         collapseGanttBox(){
@@ -146,8 +159,17 @@ export default {
                 this.$refs.gantt.hideCriticalPath();
             else this.$refs.gantt.showCriticalPath();
             this.criticalPathDisplay = !this.criticalPathDisplay;
+        },
+        updateTree (data) {
+            this.$refs.tree.update(data);
+        },
+        destoryTree () {
+            this.$refs.tree.destructor();
+        },
+        reloadTree (data) {
+            this.$refs.tree.reload(data);
         }
-    }
+    },
 }
 
 
