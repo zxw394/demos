@@ -16,7 +16,7 @@
     "dhx-tree": "^6.2.3",
     "dhx-treegrid": "^6.2.1",
     "element-ui": "^2.12.0",
-    "json-bigint": "^0.3.0",
+    "json-bigint": "^1.0.0",
     "jstree": "^3.3.8",
     "jstreegrid": "^3.10.0",
     "vue": "^2.6.10",
