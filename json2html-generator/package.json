@@ -11,7 +11,7 @@
   "dependencies": {
     "commander": "^3.0.2",
     "core-js": "^2.6.5",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "node-json2html": "^1.2.0",
     "transn-js-lib": "^1.0.2",
     "vue": "^2.6.10",
